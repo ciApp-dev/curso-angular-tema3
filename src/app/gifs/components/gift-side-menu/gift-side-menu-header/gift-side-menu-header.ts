@@ -1,4 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { environment } from '@environments/environment';
+
+
 
 @Component({
   selector: 'app-gift-side-menu-header',
@@ -6,4 +9,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './gift-side-menu-header.html',
   
 })
-export class GiftSideMenuHeader { }
+export class GiftSideMenuHeader { 
+
+  envs = environment;
+}
