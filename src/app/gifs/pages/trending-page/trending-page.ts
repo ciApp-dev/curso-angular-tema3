@@ -1,5 +1,6 @@
-import {  Component, signal } from '@angular/core';
+import {  Component, inject, signal } from '@angular/core';
 import { GiftList } from "../../components/gift-list/gift-list";
+import { GifService } from '../../services/gifs.service';
 
 
 
@@ -30,5 +31,8 @@ export default class TrendingPage {
    }
 
 gifList = signal(imageUrls); 
+
+gifService = inject( GifService );
+
 
 }
