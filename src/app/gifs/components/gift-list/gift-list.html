@@ -2,7 +2,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" >
 
     @for(imagen of inputImageUrls(); track $index ){
-        <app-gift-list-item [imageUrl]="imagen"></app-gift-list-item>
+        <app-gift-list-item [imageUrl]="imagen.url"></app-gift-list-item>
         
     }
 

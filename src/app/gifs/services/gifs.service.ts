@@ -9,7 +9,9 @@ import { GifMapper } from '../components/mapper/gif.mapper';
 export class GifService {
     private http = inject(HttpClient);
 
-    private trendingGif = signal<Gif[]>([]);
+    trendingGif = signal<Gif[]>([]);
+    trendingGifsLoading = signal(true);
+
     constructor(){
         this.loadTrendingGifs();
     }
@@ -22,8 +24,22 @@ export class GifService {
             }
         }).subscribe((resp) => {
             const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
+            this.trendingGif.set(gifs);
             console.log({gifs});
-            
+            this.trendingGifsLoading.set(false);
+        })
+    }
+
+    searchGifs(query: string) {
+        this.http.get<GiphyResponse>(`${environment.giphyUrl}/gifs/search`,{
+            params: {
+                api_key: environment.giphyApiKey,
+                limit: '25',
+                q: query,
+            }
+        }).subscribe((resp) => {
+            const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
+            console.log({gifs});
         })
     }
 }
