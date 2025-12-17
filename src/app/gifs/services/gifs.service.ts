@@ -1,10 +1,20 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import type{ GiphyResponse } from '../interfaces/giphy.interfaces';
 import type{ Gif } from '../interfaces/gif.interface';
 import { GifMapper } from '../components/mapper/gif.mapper';
-import { map, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
+
+
+const GIF_KEY = 'gif';
+
+const loadFromLocalStorage = () => {
+    const gifFromLocalStorage = localStorage.getItem(GIF_KEY) ?? '{}';
+    const gifs = JSON.parse(gifFromLocalStorage);
+    return gifs;
+}
+
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -13,12 +23,21 @@ export class GifService {
     trendingGif = signal<Gif[]>([]);
     trendingGifsLoading = signal(true);
 
-    searchHistory = signal<Record<string, Gif[]>>({});
+    
+    searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
     searchHistoryKeys = computed(() => Object.keys(this.searchHistory()));
-
+    /*searchHistory = signal<Record<string, Gif[]>>(JSON.parse(localStorage.getItem('searchHistory') ?? '{}'));
+    searchHistoryKeys = computed(() => Object.keys(this.searchHistory()));
+    */
     constructor(){
         this.loadTrendingGifs();
     }
+
+    saveGifToLocalStorage = effect(() => {
+        const historyString = JSON.stringify(this.searchHistory());
+        localStorage.setItem(GIF_KEY, historyString);
+    });
+    
 
     loadTrendingGifs() {
         this.http.get<GiphyResponse>(`${environment.giphyUrl}/gifs/trending`,{
@@ -34,7 +53,7 @@ export class GifService {
         })
     }
 
-    searchGifs(query: string) {
+    searchGifs(query: string):Observable<Gif[]> {
         return this.http.get<GiphyResponse>(`${environment.giphyUrl}/gifs/search`,{
             params: {
                 api_key: environment.giphyApiKey,
@@ -51,6 +70,7 @@ export class GifService {
                     ...history,
                     [query.toLowerCase()]: items
                 }))
+                //localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory()));
             })
         );
         
@@ -59,6 +79,10 @@ export class GifService {
             const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
             console.log({gifs});
         })*/
+           
+    }
 
+    getHistoryGifs(query: string):Gif[]{
+        return this.searchHistory()[query]?? [];
     }
 }
